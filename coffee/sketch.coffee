@@ -1,312 +1,167 @@
-KEY = '008B'
+TITLE = 'Svenska bok- och mediemässan 2022-08-20'
+scenes = {}
+XOFF = 15 # pixels
+YOFF = 56 # pixels
+LF = 30
 
-ANGLE_MODE = ['Degrees','Radians']
-LANGUAGE = ['Coffeescript','Javascript']
-DISPLAY_MODE = ['Fixed','Engineering']
+minutes = (hhmm) ->
+	h = Math.floor hhmm/100
+	m = hhmm % 100
+	60*h + m
 
-memory = null
-page = null
+pretty = (m) ->
+	min = m % 60
+	m = m - min
+	h = m/60
+	if h < 10 then h = '0' + h
+	if min < 10 then min = '0' + min
+	h + ':' + min
 
-config =
-	angleMode : 0
-	language : 1
-	displayMode : 0
-	digits : 3
+timestamp = minutes 1410
 
-assert = (a,b,msg='') =>
-	chai.assert.deepEqual a,b,msg
-	'ok'
+event = (scen,lst) ->
+	lst[0] = minutes lst[0]
+	scenes[scen] ||= []
+	scenes[scen].push lst
 
-findLineNo = (e) =>
-	lines = e.stack.split '\n'
-	for line in lines
-		if 0 <= line.indexOf '<anonymous>'
-			return line.split(':')[1] - 1
-	0
+event 'S1',[1425,45,"P3. Nato","Roger Richthoff, Johan Lindblad, Oscar Overgaard, Ulf Sandmark, Jeff Ahl"] 
+event 'S1',[1545,10,"Tal","Arne Weinz"]
+event 'S1',[1600,40,"P5. Klimatfrågan","Gösta Wallin"]
+event 'S1',[1650,10,"P4. Ekonomi","Henrik Sundin"]
 
-makeAnswer = -> 
-	answers = []
-	res = ''
-	cs = ''
-	js = []
-	JS = if config.language == 0 then '' else '`' 
+event 'S2',[1510,10,"HMF-Medalj utdelning","Rasmus Paludan"]
+event 'S2',[1525,10,"Tal","Robert Mathiasson"]
+event 'S2',[1540,35,"P2. Nätverk","David Bergqvist"]
+event 'S2',[1625,10,"Tal","Jonas Nilsson"]
+event 'S2',[1650,10,"P4. Alternativmedier","Carl Lundström"]
 
-	angleMode [DEGREES,RADIANS][config.angleMode]
+event 'S3',[1505,10,"Tal","Nils Littorin"]
+event 'S3',[1520,35,"P4. Övervakningsmetoder","Rikard Högberg"]
+event 'S3',[1615,35,"P1. Personer","Johan Lindblad"]
 
-	lines = memory.split "\n"
-	for line in lines
-		pos = line.lastIndexOf if config.language == 0 then '#' else '//'
-		if pos >=0 then line = line.slice 0,pos
-		cs = line.trim() 
-		if cs == ''
-			js.push transpile JS + 'answers.push("")'  + JS 
-		else
-			try
-				if cs[cs.length-1]=='=' then cs += 'undefined'
-				js.push transpile JS + 'answers.push(' + cs + ")"  + JS 
-			catch e
-				stack = e.stack.split('\n')
-				js.push transpile JS + "answers.push('" + stack[0] + "')"  + JS 
+event 'S4',[1515,30,"D9. Klimatbluff eller reellt hot?","Izabella Jarvandi"]
+event 'S4',[1555,20,"D7. Bränna koranen","Christian Peterson"]
+event 'S4',[1625,30,"D5. NATO för/emot?","Izabella Jarvandi"]
 
-	try
-		console.dir js
-		eval js.join("\n")
-	catch e 
-		console.dir e.stack
-		lineNo = findLineNo e
-		pre = (range(lineNo).map (x) => '\n').join('')
-		post = (range(js.length-lineNo).map (x) => '\n').join('')
-		lines = e.stack.split('\n')
-		return pre + lines[0] + post
+event 'S5',[1505,40,"Personporträtt 6","Patrik Engellau"]
+event 'S5',[1555,40,"Personporträtt 1","Carl Lundström"]
+event 'S5',[1645,15,"Inblick med Nick","Nick Alinia"]
 
-	res = ""
-	for answer in answers
-		if 'function' == typeof answer
-			res += 'function defined' + "\n" 
-		else if 'object' == typeof answer
-			res += JSON.stringify(answer) + "\n" 
-		else if 'number' == typeof answer
-			if config.displayMode == 0 then res += fixed(answer, config.digits) + "\n"
-			if config.displayMode == 1 then res += engineering(answer, config.digits) + "\n"
-		else
-			res += answer + "\n"
-	res 
+event 'S6',[1455,30,"Ek5. Matpriserna","Olle Felten"]
+event 'S6',[1535,30,"Ek1. Inflationen","Jan Tullberg"]
+event 'S6',[1615,30,"Ek6. Skatterna","Micael Hamberg"]
 
-encode = ->
-	s = encodeURI memory
-	s = s.replace /=/g,'%3D'
-	s = s.replace /\?/g,'%3F'
-	s = s.replace /#/g,'%23'
-	window.open '?content=' + s + '&config=' + encodeURI JSON.stringify config
+event 'S7',[1500,30,"Parti4. MOD","Erik Almqvist"]
+event 'S7',[1535,30,"Parti7. Malmölistan","Erik Almqvist, Nils Littorin"]
+event 'S7',[1615,25,"Parti11. Direktdemokraterna","Erik Almqvist, Lotte Johansson"]
+event 'S7',[1650,10,"Parti5. Kristna Värdepartiet","Emilia Ögell"]
 
-decode = ->
-	memory = ''
-	if '?' in window.location.href
-		parameters = getParameters()
-		if parameters.content
-			memory = decodeURI parameters.content
-			memory = memory.replace /%3D/g,'='
-			memory = memory.replace /%3F/g,'?'
-			memory = memory.replace /%23/g,'#' 
-		if parameters.config
-			config = JSON.parse decodeURI parameters.config
+event 'S8',[1505,10,"Konst","Dan Park"]
+event 'S8',[1525,30,"Musik","Fredrik Larsson, Joakim"]
+event 'S8',[1605,25,"Musik","Miqael Hicks"]
+event 'S8',[1635,25,"Författare","Einar Askestad"]
+
+drawTitle = ->
+	push()
+	textAlign CENTER
+	textSize 20
+	text TITLE,width/2,30
+	pop()
+
+drawGrid = (ts,left) ->
+	push()
+	for i in range 19
+		x = XOFF + i * 10
+		line x, YOFF, x, 295
+	for i in range 9
+		y = 55+LF*i
+		line XOFF, y, XOFF+180, y
+	textAlign CENTER
+	text pretty(left),XOFF,50
+	push()
+	fill "yellow"
+	text pretty(timestamp),XOFF+60+2*ts,50
+	pop()
+	text pretty(left+90),XOFF+180,50
+	stroke "YELLOW"
+	line XOFF+60+2*ts, 65-10+1, XOFF+60+2*ts, 294
+	pop()
+
+drawBox = (i,event,ts) ->
+	hhmm = event[0]
+	duration = event[1]
+	x = XOFF + 60 + 2*(hhmm-timestamp+ts)
+	rect x, LF+40-LF/2+LF*i+4, duration*2, 22
+	d = duration+hhmm-timestamp
+	if hhmm > timestamp then d = duration
+	text d,x+2,LF+60-LF/2+LF*i
+
+findIndex = (events, timestamp) ->
+	for index in range events.length
+		event = events[index]
+		if timestamp <= event[0]+event[1] then return index
+	-1
+
+drawHeader = ->
+	push()
+	xoff = 190
+	yoff = 310
+	fill "red"
+	text "Scen",xoff+10,yoff+7
+	fill "yellow"
+	text "Start",xoff+45,yoff
+	fill "white"
+	text "Längd",xoff+77,yoff
+	fill "blue"
+	text "Event",xoff+115,yoff
+	fill "black"
+	text "Deltagare",xoff+45,yoff+15
+	textAlign CENTER
+	text "En ruta = 5 minuter",XOFF+90,yoff+9
+	pop()
+
+drawInfo = (ts) ->
+	keys = _.keys scenes
+	for i in range keys.length
+		key = keys[i]
+		index = findIndex scenes[key],timestamp
+		if index == -1 then return
+		event = scenes[key][index]
+		drawBox i,event,ts
+
+		push()
+		fill "gray"
+		sc()
+		rect 196,LF/2+41+LF*i,400,LF
+
+		fill "red"
+		text key,200,3*LF/4+53+LF*i
+		fill "yellow"
+		text pretty(event[0]), 215, LF/2+53+LF*i
+		fill "white"
+		text event[1], 255, LF/2+53+LF*i
+		fill "blue"
+		text event[2], 280, LF/2+53+LF*i
+		fill "black"
+		text event[3], 215, LF/2+68+LF*i
+		pop()
+
+draw = ->
+	bg 0.5
+	ts = timestamp % 5
+	left = timestamp - ts - 30
+	drawTitle()
+	drawHeader()
+	drawGrid ts,left
+	drawInfo ts
+
+mouseClicked = ->
+	if mouseY < YOFF
+		date = new Date()
+		timestamp = minutes 100 * date.getHours() + date.getMinutes()
+	else if XOFF < mouseX < XOFF + 180 and YOFF < mouseY < YOFF + 8*LF
+		ts = timestamp % 5
+		timestamp += Math.round((mouseX-XOFF)/2-ts)-30
 
 setup = ->
-
-	# memory = fetchData()
-	decode()
-
-	page = new Page 0, ->
-		@table.innerHTML = "" 
-
-		enter = makeTextArea()
-		enter.style.left = '51%'
-		enter.style.width = '48%'
-		#enter.style.overflow = 'hidden'
-
-		enter.focus()
-		enter.value = memory
-
-		answer = makeTextArea() 
-		answer.style.left = '0px'
-		answer.setAttribute "readonly", true
-		answer.style.textAlign = 'right'
-		answer.style.overflow = 'hidden'
-		answer.wrap = 'off'
-
-		answer.value = makeAnswer()
-
-		enter.onscroll = (e) ->
-			answer.scrollTop = enter.scrollTop
-			answer.scrollLeft = enter.scrollLeft
-		answer.onscroll = (e) -> e.preventDefault()
-
-		@addRow enter,answer
-
-		enter.addEventListener "keyup", (event) ->
-			answer.scrollTop = enter.scrollTop
-			answer.scrollLeft = enter.scrollLeft
-			
-			if event.keyCode not in [33..40]
-				memory = enter.value
-				answer.value = makeAnswer()
-				# storeData memory
-
-	page.addAction 'Clear', -> 
-		memory = ""
-		storeAndGoto memory,page
-
-	page.addAction 'Samples', ->
-		if config.language == 0 
-			memory = """
-# Coffeescript
-2+3
-
-sträcka = 150
-tid = 6
-tid
-sträcka/tid
-25 == sträcka/tid 
-30 == sträcka/tid
-
-# String
-a = "Volvo" 
-5 == a.length
-'l' == a[2]
-
-# Math
-5 == sqrt 25 
-
-# Date
-c = new Date() 
-c.getFullYear()
-c.getHours()
-
-# Array
-numbers = [1,2,3] 
-2 == numbers[1]
-numbers.push 47
-4 == numbers.length
-numbers 
-47 == numbers.pop()
-3 == numbers.length
-numbers
-assert [0,1,4,9,16,25,36,49,64,81], (x*x for x in range 10)
-
-# Object
-person = {fnamn:'David', enamn:'Larsson'}
-'David' == person['fnamn']
-'Larsson' == person.enamn
-
-# functions (enbart one liners tillåtna!)
-kvadrat = (x) -> x*x
-25 == kvadrat 5
-
-# feluppskattning vid användande av bäring och avstånd
-area = (b1,b2,r1,r2) -> (r2*r2 - r1*r1) * Math.PI * (b2-b1)/360  
-17.671458676442587 == area 90,91,200,205
-35.12475119638588  == area 90,91,400,405
-69.81317007977317  == area 90,92,195,205
-139.62634015954634 == area 90,92,395,405
-
-serial = (a,b) -> a+b
-2 == serial 1,1
-5 == serial 2,3
-
-parallel = (a,b) -> a*b/(a+b)
-0.5 == parallel 1,1
-1.2 == parallel 2,3
-
-fak = (x) -> if x==0 then 1 else x * fak(x-1)
-3628800 == fak 10
-
-fib = (x) -> if x<=0 then 1 else fib(x-1) + fib(x-2) 
-1 == fib 0
-2 == fib 1
-5 == fib 3
-8 == fib 4
-13 == fib 5
-21 == fib 6
-
-"""
-		else # Javascript
-			memory = """ 
-// Javascript
-2+3
-
-distance = 150
-seconds = 6
-seconds
-distance/seconds
-25 == distance/seconds
-30 == distance/seconds
-
-// String
-a = "Volvo" 
-5 == a.length
-'l' == a[2]
-
-// Math
-5 == sqrt(25)
-
-// Date
-c = new Date() 
-c.getFullYear()
-c.getHours()
-
-// Array
-numbers = [1,2,3] 
-2 == numbers[1]
-numbers.push(47)
-4 == numbers.length
-numbers 
-47 == numbers.pop()
-3 == numbers.length
-numbers
-assert([0,1,4,9,16,25,36,49,64,81], range(10).map(x => x*x))
-
-// Object
-person = {fnamn:'David', enamn:'Larsson'}
-'David' == person['fnamn']
-'Larsson' == person.enamn
-
-// functions (only one liners)
-kvadrat = (x) => x*x
-25 == kvadrat(5)
-
-serial = (a,b) => a+b
-2 == serial(1,1)
-5 == serial(2,3)
-
-parallel = (a,b) => a*b/(a+b)
-0.5 == parallel(1,1)
-1.2 == parallel(2,3)
-
-fak = (x) => (x==0 ? 1 : x * fak(x-1))
-3628800 == fak(10)
-
-fib = (x) => x<=0 ? 1 : fib(x-1) + fib(x-2)
-1 == fib(0)
-2 == fib(1)
-5 == fib(3)
-8 == fib(4)
-13 == fib(5)
-21 == fib(6)
-
-"""
-		# storeAndGoto memory,page
-		encode()
-
-	page.addAction 'Reference', -> window.open "https://www.w3schools.com/jsref/default.asp"
-
-	page.addAction 'Hide', -> 
-		page.display()
-
-	page.addAction 'URL', -> 
-		encode()
-
-	page.addAction ANGLE_MODE[config.angleMode], -> 
-		config.angleMode = 1 - config.angleMode
-		page.actions[5][0] = ANGLE_MODE[config.angleMode]
-		makeAnswer()
-		storeAndGoto memory,page
-
-	page.addAction LANGUAGE[config.language], -> 
-		config.language = 1 - config.language
-		page.actions[6][0] = LANGUAGE[config.language]
-		storeAndGoto memory,page
-
-	page.addAction DISPLAY_MODE[config.displayMode], ->
-		config.displayMode = 1 - config.displayMode
-		page.actions[7][0] = DISPLAY_MODE[config.displayMode]
-		storeAndGoto memory,page
-
-	page.addAction 'Less', -> 
-		if config.digits>1 then config.digits--
-		storeAndGoto memory,page
-
-	page.addAction 'More', -> 
-		if config.digits<17 then config.digits++
-		storeAndGoto memory,page
-
-	page.display()
+	createCanvas 600,340
